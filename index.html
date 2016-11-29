@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+<div class="carousel">
+    <div class="carousel-box">
+        <ul class="carousel-inner">
+            <li class="item"><img src="banner1.jpg"></li>
+            <li class="item"><img src="banner2.jpg"></li>
+            <li class="item"><img src="banner3.jpg"></li>
+        </ul>
+
+        <ol class="carousel-pagination">
+            <li data-slide-to="0" class="active"></li>
+            <li data-slide-to="1"></li>
+            <li data-slide-to="2"></li>
+        </ol>
+
+        <div class="carousel-control">
+            <div class="left"><</div>
+            <div class="right">></div>
+        </div>
+    </div>
+</div>
+<script src="zepto.min.js"></script>
+<script src="carousel.js"></script>
+<script>
+    $(".carousel").carousel({
+        callback: function (index) {
+            console.log(index)
+        }
+    })
+</script>
+</body>
+</html>
