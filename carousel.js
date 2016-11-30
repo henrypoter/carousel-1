@@ -140,7 +140,7 @@
             }
 
             if (index < 0) {
-                index = size-1
+                index = size - 1
             }
 
             $items.css({
