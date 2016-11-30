@@ -7,7 +7,7 @@
             type: "normal",
             width: "",
             speed: 600,
-            autoplay: 5000,
+            autoplay: 3000,
             pause: "hover",
             arrow: "hover"
         };
@@ -190,8 +190,6 @@
                 $this.on("mouseout", function () {
                     $pageControl.find("div").hide();
                 })
-            } else if (opts.arrow === "hidden") {
-                $pageControl.find("div").hide();
             }
 
             //改变窗口
