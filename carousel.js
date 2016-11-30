@@ -4,8 +4,9 @@
 !function ($) {
     $.fn.carousel = function (options) {
         var defaults = {
-            width: "",
-            speed: 500,
+            type: "opacity",
+            width: "800",
+            speed: 600,
             autoplay: 5000,
             pause: "hover",
             arrow: "hover",
@@ -18,35 +19,60 @@
         var $this = $(this),
             $items = $this.find(".carousel-inner .item"),
             $inner = $this.find(".carousel-inner"),
-            w = opts.width ? opts.width : $(window).width(),
+            pageW = $("body").width(),
+            w = opts.width ? opts.width.indexOf("%") > -1 ? parseInt(opts.width) / 100 * pageW : opts.width : pageW,
             timer, index = 0,
-            size = $items.length + 1,
+            size = opts.type === "normal" ? $items.length + 1 : $items.length,
             $pagination = $this.find(".carousel-pagination li"),
             moving = false, //防止连续点击左右造成的BUG
             paginationClick = false; //点击页面导航切换返回层数
 
         var init = function () {
-            //克隆第一张图片
-            var clone = $items.first().clone();
-            $inner.append(clone);
-            $items = $this.find(".carousel-inner .item");
+            if (opts.type === "normal") {
+                //克隆第一张图片
+                var clone = $items.first().clone();
+                $inner.append(clone);
+                $items = $this.find(".carousel-inner .item");
+            }
 
             setSize();
-            opts.autoplay ? autoPlay() : clearInterval(timer);
             addEvenListener();
+            opts.autoplay ? autoPlay() : clearInterval(timer);
+
         };
 
         //设置轮播的高度宽度
         var setSize = function () {
+
             $this.find(".carousel-box").css({
                 width: w + "px"
             });
-            $inner.css({
-                width: w * $items.length + "px"
-            });
+
             $items.css({
                 width: w + "px"
-            })
+            });
+
+            if (opts.type === "normal") {
+                $inner.css({
+                    width: w * $items.length + "px"
+                });
+            } else if (opts.type === "opacity") {
+                $inner.css({
+                    width: w + "px",
+                    height: $items.eq(0).height() + "px"
+                });
+                $items.css({
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    "z-index": 0,
+                    opacity: 0
+                });
+                $items.eq(0).css({
+                    "z-index": 1,
+                    opacity: 1
+                })
+            }
         };
 
         var autoPlay = function () {
@@ -72,6 +98,30 @@
         };
 
         var move = function () {
+            if (opts.type === "normal") {
+                normalMove()
+            } else if (opts.type === "opacity") {
+                opacityMove();
+            }
+
+            //防止连续点击左右造成的BUG
+            setTimeout(function () {
+                moving = false;
+            }, opts.speed);
+
+            $pagination.removeClass("active");
+            if (index == $pagination.length) {
+                $pagination.eq(0).addClass("active");
+            } else {
+                $pagination.eq(index).addClass("active");
+            }
+
+            paginationClick ? opts.callback(index) : opts.type === "normal" ? opts.callback(index - 1) : opts.callback(index);
+            paginationClick = false
+
+        };
+
+        var normalMove = function () {
             if (index === size) {
                 index = 1;
                 $inner.css({
@@ -89,21 +139,25 @@
             $inner.animate({
                 transform: "translate3d(" + (-index * w) + "px,0,0)"
             }, opts.speed);
+        };
 
-            setTimeout(function () {
-                moving = false;
-            }, opts.speed);
-
-            $pagination.removeClass("active");
-            if (index == $pagination.length) {
-                $pagination.eq(0).addClass("active");
-            } else {
-                $pagination.eq(index).addClass("active");
+        var opacityMove = function () {
+            if (index === size) {
+                index = 0
             }
 
-            paginationClick ? opts.callback(index) : opts.callback(index - 1);
-            paginationClick = false
+            if (index < 0) {
+                index = size-1
+            }
 
+            $items.css({
+                opacity: 0,
+                "z-index": 0
+            });
+            $items.eq(index).animate({
+                opacity: 1,
+                "z-index": 1
+            }, opts.speed)
         };
 
         //添加事件
@@ -118,12 +172,14 @@
                 controlClick("right")
             });
 
+            //分页点击
             $pagination.on("click", function () {
                 paginationClick = true;
                 index = parseInt($(this).attr("data-slide-to"));
                 move()
             });
 
+            //hover是否暂停轮播
             if (opts.pause === "hover") {
                 $this.on("mouseover", function () {
                     clearInterval(timer)
@@ -133,6 +189,7 @@
                 })
             }
 
+            //hover显示箭头
             if (opts.arrow === "hover") {
                 $pageControl.find("div").hide();
                 $this.on("mouseover", function () {
@@ -141,15 +198,22 @@
                 $this.on("mouseout", function () {
                     $pageControl.find("div").hide();
                 })
+            } else if (opts.arrow === "hidden") {
+                $pageControl.find("div").hide();
             }
 
+            //改变窗口
             $(window).on("resize", function () {
-                w = opts.width ? opts.width : $(window).width();
+                pageW = $("body").width();
+                w = opts.width ? opts.width.indexOf("%") > -1 ? parseInt(opts.width) / 100 * pageW : opts.width : pageW;
+
                 setSize();
-                //解决缩放时已经轮播的元素会错位的BUG
-                $inner.css({
-                    transform: "translate3d(" + (-index * w) + "px,0,0)"
-                });
+                if (opts.type === "normal") {
+                    //解决缩放时已经轮播的元素会错位的BUG
+                    $inner.css({
+                        transform: "translate3d(" + (-index * w) + "px,0,0)"
+                    });
+                }
             })
         };
 
