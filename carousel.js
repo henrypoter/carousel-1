@@ -4,14 +4,12 @@
 !function ($) {
     $.fn.carousel = function (options) {
         var defaults = {
-            type: "opacity",
-            width: "800",
+            type: "normal",
+            width: "",
             speed: 600,
             autoplay: 5000,
             pause: "hover",
-            arrow: "hover",
-            callback: function () {
-            }
+            arrow: "hover"
         };
 
         var opts = $.extend({}, defaults, options);
@@ -24,8 +22,7 @@
             timer, index = 0,
             size = opts.type === "normal" ? $items.length + 1 : $items.length,
             $pagination = $this.find(".carousel-pagination li"),
-            moving = false, //防止连续点击左右造成的BUG
-            paginationClick = false; //点击页面导航切换返回层数
+            moving = false; //防止连续点击左右造成的BUG
 
         var init = function () {
             if (opts.type === "normal") {
@@ -115,10 +112,6 @@
             } else {
                 $pagination.eq(index).addClass("active");
             }
-
-            paginationClick ? opts.callback(index) : opts.type === "normal" ? opts.callback(index - 1) : opts.callback(index);
-            paginationClick = false
-
         };
 
         var normalMove = function () {
@@ -174,7 +167,6 @@
 
             //分页点击
             $pagination.on("click", function () {
-                paginationClick = true;
                 index = parseInt($(this).attr("data-slide-to"));
                 move()
             });
