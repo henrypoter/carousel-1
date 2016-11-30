@@ -5,7 +5,7 @@
     $.fn.carousel = function (options) {
         var defaults = {
             type: "normal",
-            width: "",
+            width: "100%",
             speed: 600,
             autoplay: 3000,
             pause: "hover",
