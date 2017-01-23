@@ -35,7 +35,6 @@
             setSize();
             addEvenListener();
             opts.autoplay ? autoPlay() : clearInterval(timer);
-
         };
 
         //设置轮播的高度宽度
@@ -61,13 +60,10 @@
                 $items.css({
                     position: "absolute",
                     top: 0,
-                    left: 0,
-                    "z-index": 0,
-                    opacity: 0
+                    left: 0
                 });
                 $items.eq(0).css({
-                    "z-index": 1,
-                    opacity: 1
+                    "z-index": 1
                 })
             }
         };
@@ -143,13 +139,11 @@
                 index = size - 1
             }
 
-            $items.css({
-                opacity: 0,
-                "z-index": 0
+            $items.not($items.eq(index)).animate({
+                opacity: 0
             });
             $items.eq(index).animate({
-                opacity: 1,
-                "z-index": 1
+                opacity: 1
             }, opts.speed)
         };
 
@@ -168,6 +162,7 @@
             //分页点击
             $pagination.on("click", function () {
                 index = parseInt($(this).attr("data-slide-to"));
+                opts.autoplay ? autoPlay() : clearInterval(timer);
                 move()
             });
 
